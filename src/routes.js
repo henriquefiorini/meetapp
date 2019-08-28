@@ -18,6 +18,7 @@ routes.post('/sessions', SessionController.create);
 routes.post('/users', UserController.create);
 routes.put('/users', authMiddleware, UserController.update);
 
+routes.get('/meetups', authMiddleware, MeetupController.list);
 routes.post('/meetups', authMiddleware, MeetupController.create);
 routes.put('/meetups/:id', authMiddleware, MeetupController.update);
 routes.delete('/meetups/:id', authMiddleware, MeetupController.delete);
