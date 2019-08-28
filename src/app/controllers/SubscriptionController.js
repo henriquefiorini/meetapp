@@ -107,12 +107,26 @@ class SubscriptionController {
     }
 
     // Retrieve requested subscription
-    const subscription = await Subscription.findByPk(req.params.id);
+    const subscription = await Subscription.findByPk(req.params.id, {
+      include: [
+        {
+          model: Meetup,
+          required: true,
+        },
+      ],
+    });
 
     // Validate if the subscription exists
     if (!subscription) {
       return res.status(400).json({
         error: 'Record not found.',
+      });
+    }
+
+    // Validate if the meetup has already happened
+    if (subscription.meetup.has_passed) {
+      return res.status(400).json({
+        error: 'You cannot unsubscribe from past meetups.',
       });
     }
 
