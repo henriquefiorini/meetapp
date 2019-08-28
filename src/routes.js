@@ -8,6 +8,7 @@ import authMiddleware from './app/middlewares/auth';
 import SessionController from './app/controllers/SessionController';
 import UserController from './app/controllers/UserController';
 import MeetupController from './app/controllers/MeetupController';
+import SubscriptionController from './app/controllers/SubscriptionController';
 import FileController from './app/controllers/FileController';
 
 const routes = new Router();
@@ -22,6 +23,11 @@ routes.get('/meetups', authMiddleware, MeetupController.list);
 routes.post('/meetups', authMiddleware, MeetupController.create);
 routes.put('/meetups/:id', authMiddleware, MeetupController.update);
 routes.delete('/meetups/:id', authMiddleware, MeetupController.delete);
+routes.post(
+  '/meetups/:id/subscriptions',
+  authMiddleware,
+  SubscriptionController.create
+);
 
 routes.post(
   '/files',

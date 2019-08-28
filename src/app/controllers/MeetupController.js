@@ -155,7 +155,7 @@ class MeetupController {
   }
 
   async delete(req, res) {
-    // Validate request query
+    // Validate request parameters
     const schema = Yup.object().shape({
       id: Yup.number().required(),
     });
