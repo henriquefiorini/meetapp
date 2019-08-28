@@ -13,15 +13,19 @@ import User from '../models/User';
 
 class MeetupController {
   async list(req, res) {
-    // Get current page
-    const { date, page = 1 } = req.query;
-
-    // Validate if the date is in the request
-    if (!date) {
+    // Validate request query
+    const schema = Yup.object().shape({
+      date: Yup.date().required(),
+      page: Yup.number(),
+    });
+    if (!(await schema.isValid(req.query))) {
       return res.status(400).json({
         error: 'Invalid request.',
       });
     }
+
+    // Destructure query parameters
+    const { date, page = 1 } = req.query;
 
     // Parse date string to ISO Date object
     const parsedDate = parseISO(date);
@@ -151,13 +155,23 @@ class MeetupController {
   }
 
   async delete(req, res) {
+    // Validate request query
+    const schema = Yup.object().shape({
+      id: Yup.number().required(),
+    });
+    if (!(await schema.isValid(req.params))) {
+      return res.status(400).json({
+        error: 'Invalid request.',
+      });
+    }
+
     // Retrieve requested meetup
     const meetup = await Meetup.findByPk(req.params.id);
 
     // Validate if the meetup exists
     if (!meetup) {
       return res.status(400).json({
-        error: 'Invalid request.',
+        error: 'Record not found.',
       });
     }
 
