@@ -65,6 +65,13 @@ class MeetupController {
     // Retrieve requested meetup
     const meetup = await Meetup.findByPk(req.params.id);
 
+    // Validate if the meetup exists
+    if (!meetup) {
+      return res.status(400).json({
+        error: 'Invalid request.',
+      });
+    }
+
     // Validate if the current user is the meetup organizer
     if (meetup.organizer_id !== req.currentUserId) {
       return res.status(401).json({
@@ -79,8 +86,11 @@ class MeetupController {
       });
     }
 
+    // Destructure request parameters
+    const { banner_id, title, description, location, date } = req.body;
+
     // Validate if the date is in the past
-    const startTime = startOfHour(parseISO(req.body.date));
+    const startTime = startOfHour(parseISO(date));
     if (isBefore(startTime, new Date())) {
       return res.status(400).json({
         error: 'You must not use past dates.',
@@ -88,13 +98,46 @@ class MeetupController {
     }
 
     // Update meetup
-    await meetup.update(req.body);
+    await meetup.update({
+      banner_id,
+      title,
+      description,
+      location,
+      date,
+    });
 
     return res.json(meetup);
   }
 
   async delete(req, res) {
-    return res.json();
+    // Retrieve requested meetup
+    const meetup = await Meetup.findByPk(req.params.id);
+
+    // Validate if the meetup exists
+    if (!meetup) {
+      return res.status(400).json({
+        error: 'Invalid request.',
+      });
+    }
+
+    // Validate if the current user is the meetup organizer
+    if (meetup.organizer_id !== req.currentUserId) {
+      return res.status(401).json({
+        error: 'You are not allowed to view this resource.',
+      });
+    }
+
+    // Validate if the meetup has already happened
+    if (meetup.has_passed) {
+      return res.status(400).json({
+        error: 'You cannot delete past meetups.',
+      });
+    }
+
+    // Delete meetup
+    await meetup.destroy();
+
+    return res.send();
   }
 }
 
