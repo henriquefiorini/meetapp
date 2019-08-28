@@ -7,6 +7,7 @@ import Meetup from '../models/Meetup';
 
 class SubscriptionController {
   async list(req, res) {
+    // Get subscriptions ordered by date from current user
     const subscriptions = await Subscription.findAll({
       where: {
         user_id: req.currentUserId,
@@ -95,7 +96,32 @@ class SubscriptionController {
   }
 
   async delete(req, res) {
-    return res.json();
+    // Validate request parameters
+    const schema = Yup.object().shape({
+      id: Yup.number().required(),
+    });
+    if (!(await schema.isValid(req.params))) {
+      return res.status(400).json({
+        error: 'Invalid request.',
+      });
+    }
+
+    // Retrieve requested subscription
+    const subscription = await Subscription.findByPk(req.params.id);
+
+    // Validate if the subscription exists
+    if (!subscription) {
+      return res.status(400).json({
+        error: 'Record not found.',
+      });
+    }
+
+    // Cancel (delete) subscription
+    subscription.destroy();
+
+    // Send mail to organizer
+
+    return res.send();
   }
 }
 

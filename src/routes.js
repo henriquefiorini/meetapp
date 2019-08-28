@@ -23,10 +23,17 @@ routes.get('/meetups', authMiddleware, MeetupController.list);
 routes.post('/meetups', authMiddleware, MeetupController.create);
 routes.put('/meetups/:id', authMiddleware, MeetupController.update);
 routes.delete('/meetups/:id', authMiddleware, MeetupController.delete);
+
+routes.get('/subscriptions', authMiddleware, SubscriptionController.list);
 routes.post(
   '/meetups/:id/subscriptions',
   authMiddleware,
   SubscriptionController.create
+);
+routes.delete(
+  '/subscriptions/:id',
+  authMiddleware,
+  SubscriptionController.delete
 );
 
 routes.post(
