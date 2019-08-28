@@ -1,3 +1,4 @@
+import { Op } from 'sequelize';
 import * as Yup from 'yup';
 
 import Subscription from '../models/Subscription';
@@ -6,7 +7,24 @@ import Meetup from '../models/Meetup';
 
 class SubscriptionController {
   async list(req, res) {
-    return res.json();
+    const subscriptions = await Subscription.findAll({
+      where: {
+        user_id: req.currentUserId,
+      },
+      include: [
+        {
+          model: Meetup,
+          required: true,
+          where: {
+            date: {
+              [Op.gt]: new Date(),
+            },
+          },
+        },
+      ],
+      order: [[Meetup, 'date']],
+    });
+    return res.json(subscriptions);
   }
 
   async create(req, res) {
