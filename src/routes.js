@@ -19,6 +19,7 @@ routes.post('/users', UserController.create);
 routes.put('/users', authMiddleware, UserController.update);
 
 routes.post('/meetups', authMiddleware, MeetupController.create);
+routes.put('/meetups/:id', authMiddleware, MeetupController.update);
 
 routes.post(
   '/files',
