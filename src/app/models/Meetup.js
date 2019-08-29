@@ -32,6 +32,10 @@ class Meetup extends Model {
       as: 'banner',
       foreignKey: 'banner_id',
     });
+    this.hasMany(models.Subscription, {
+      as: 'subscription',
+      foreignKey: 'meetup_id',
+    });
   }
 }
 

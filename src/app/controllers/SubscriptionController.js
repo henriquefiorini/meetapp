@@ -1,9 +1,14 @@
 import { Op } from 'sequelize';
 import * as Yup from 'yup';
 
+import Queue from '../../lib/Queue';
+
 import Subscription from '../models/Subscription';
 import User from '../models/User';
 import Meetup from '../models/Meetup';
+
+import SubscriptionMail from '../jobs/SubscriptionMail';
+import UnsubscriptionMail from '../jobs/UnsubscriptionMail';
 
 class SubscriptionController {
   async list(req, res) {
@@ -41,7 +46,14 @@ class SubscriptionController {
 
     // Validate if the user and the meetup exists
     const user = await User.findByPk(req.currentUserId);
-    const meetup = await Meetup.findByPk(req.params.id);
+    const meetup = await Meetup.findByPk(req.params.id, {
+      include: {
+        model: User,
+        as: 'organizer',
+        attributes: ['name', 'email'],
+        required: true,
+      },
+    });
     if (!user || !meetup) {
       return res.status(400).json({
         error: 'Record not found.',
@@ -71,6 +83,7 @@ class SubscriptionController {
       include: [
         {
           model: Meetup,
+          as: 'meetup',
           required: true,
           where: {
             date: meetup.date,
@@ -86,11 +99,19 @@ class SubscriptionController {
 
     // Create subscription
     const subscription = await Subscription.create({
-      user_id: req.currentUserId,
-      meetup_id: req.params.id,
+      user_id: user.id,
+      meetup_id: meetup.id,
     });
 
     // Send mail to organizer
+    await Queue.add(SubscriptionMail.key, {
+      subscription: {
+        meetup,
+        participant: {
+          name: user.name,
+        },
+      },
+    });
 
     return res.json(subscription);
   }
@@ -110,8 +131,24 @@ class SubscriptionController {
     const subscription = await Subscription.findByPk(req.params.id, {
       include: [
         {
-          model: Meetup,
+          model: User,
+          as: 'participant',
+          attributes: ['name'],
           required: true,
+        },
+        {
+          model: Meetup,
+          as: 'meetup',
+          attributes: ['title', 'date'],
+          required: true,
+          include: [
+            {
+              model: User,
+              as: 'organizer',
+              attributes: ['name', 'email'],
+              required: true,
+            },
+          ],
         },
       ],
     });
@@ -131,9 +168,10 @@ class SubscriptionController {
     }
 
     // Cancel (delete) subscription
-    subscription.destroy();
+    await subscription.destroy();
 
     // Send mail to organizer
+    await Queue.add(UnsubscriptionMail.key, { subscription });
 
     return res.send();
   }

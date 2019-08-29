@@ -46,6 +46,7 @@ class MeetupController {
           model: User,
           as: 'organizer',
           attributes: ['name'],
+          required: true,
         },
       ],
     });
@@ -189,7 +190,7 @@ class MeetupController {
       });
     }
 
-    // Delete meetup
+    // Delete meetup from database
     await meetup.destroy();
 
     return res.send();
