@@ -20,6 +20,7 @@ class SubscriptionController {
       include: [
         {
           model: Meetup,
+          as: 'meetup',
           required: true,
           where: {
             date: {
@@ -28,7 +29,7 @@ class SubscriptionController {
           },
         },
       ],
-      order: [[Meetup, 'date']],
+      order: [[{ model: Meetup, as: 'meetup' }, 'date']],
     });
     return res.json(subscriptions);
   }
