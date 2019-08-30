@@ -7,6 +7,8 @@ import Subscription from '../models/Subscription';
 import User from '../models/User';
 import Meetup from '../models/Meetup';
 
+import Notification from '../schemas/Notification';
+
 import SubscriptionMail from '../jobs/SubscriptionMail';
 import UnsubscriptionMail from '../jobs/UnsubscriptionMail';
 
@@ -104,7 +106,19 @@ class SubscriptionController {
       meetup_id: meetup.id,
     });
 
-    // Send mail to organizer
+    // Send notification to the organizer
+    await Notification.create({
+      userId: meetup.organizer_id,
+      type: 'SUBSCRIPTION.NEW',
+      content: `${user.name} se inscreveu em ${meetup.title}.`,
+      metadata: {
+        meetupId: meetup.id,
+        organizerId: meetup.organizer_id,
+        participantId: user.id,
+      },
+    });
+
+    // Send mail to the organizer
     await Queue.add(SubscriptionMail.key, {
       subscription: {
         meetup,
@@ -134,19 +148,19 @@ class SubscriptionController {
         {
           model: User,
           as: 'participant',
-          attributes: ['name'],
+          attributes: ['id', 'name'],
           required: true,
         },
         {
           model: Meetup,
           as: 'meetup',
-          attributes: ['title', 'date'],
+          attributes: ['id', 'title', 'date'],
           required: true,
           include: [
             {
               model: User,
               as: 'organizer',
-              attributes: ['name', 'email'],
+              attributes: ['id', 'name', 'email'],
               required: true,
             },
           ],
@@ -170,6 +184,19 @@ class SubscriptionController {
 
     // Cancel (delete) subscription
     await subscription.destroy();
+
+    // Send notification to the organizer
+    const { meetup, participant } = subscription;
+    await Notification.create({
+      userId: meetup.organizer.id,
+      type: 'SUBSCRIPTION.CANCELED',
+      content: `${participant.name} cancelou sua inscrição em ${meetup.title}.`,
+      metadata: {
+        meetupId: meetup.id,
+        organizerId: meetup.organizer.id,
+        participantId: participant.id,
+      },
+    });
 
     // Send mail to organizer
     await Queue.add(UnsubscriptionMail.key, { subscription });
