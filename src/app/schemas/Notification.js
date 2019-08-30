@@ -30,7 +30,11 @@ const notificationSchema = new Schema(
       default: null,
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
+
+notificationSchema.index({ createdAt: -1, userId: 1 }, { unique: true });
 
 export default mongoose.model('Notification', notificationSchema);
