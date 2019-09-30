@@ -9,7 +9,7 @@ class UnsubscriptionMail {
     const { subscription } = data;
     await Mail.sendMail({
       to: `${subscription.meetup.organizer.name} <${subscription.meetup.organizer.email}>`,
-      subject: `Novo cancelamento em ${subscription.meetup.title}`,
+      subject: `New cancellation in ${subscription.meetup.title}`,
       template: 'unsubscription',
       context: {
         meetup: subscription.meetup.title,

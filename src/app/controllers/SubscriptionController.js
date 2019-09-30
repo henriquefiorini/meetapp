@@ -1,13 +1,13 @@
 import { Op } from 'sequelize';
 import * as Yup from 'yup';
 
-import Queue from '../../lib/Queue';
-
 import Subscription from '../models/Subscription';
 import User from '../models/User';
 import Meetup from '../models/Meetup';
 
 import Notification from '../schemas/Notification';
+
+import Queue from '../../lib/Queue';
 
 import SubscriptionMail from '../jobs/SubscriptionMail';
 import UnsubscriptionMail from '../jobs/UnsubscriptionMail';
