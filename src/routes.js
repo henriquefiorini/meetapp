@@ -6,6 +6,7 @@ import multerConfig from './config/multer';
 import authMiddleware from './app/middlewares/auth';
 
 import SessionController from './app/controllers/SessionController';
+import ForgotPasswordController from './app/controllers/ForgotPasswordController';
 import ResetPasswordController from './app/controllers/ResetPasswordController';
 import UserController from './app/controllers/UserController';
 import MeetupController from './app/controllers/MeetupController';
@@ -19,8 +20,8 @@ const upload = multer(multerConfig);
 
 routes.post('/sessions', SessionController.create);
 
+routes.post('/forgot_password', ForgotPasswordController.create);
 routes.post('/reset_password', ResetPasswordController.create);
-routes.put('/reset_password', ResetPasswordController.update);
 
 routes.post('/users', UserController.create);
 routes.put('/users', authMiddleware, UserController.update);

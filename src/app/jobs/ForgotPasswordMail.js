@@ -1,8 +1,8 @@
 import Mail from '../../lib/Mail';
 
-class ResetPasswordMail {
+class ForgotPasswordMail {
   get key() {
-    return 'ResetPasswordMail';
+    return 'ForgotPasswordMail';
   }
 
   async handle({ data }) {
@@ -10,10 +10,10 @@ class ResetPasswordMail {
     await Mail.sendMail({
       to: `${user.name} <${user.email}>`,
       subject: `Forgotten your password?`,
-      template: 'reset-password',
+      template: 'forgot-password',
       context: { url },
     });
   }
 }
 
-export default new ResetPasswordMail();
+export default new ForgotPasswordMail();
