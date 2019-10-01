@@ -110,7 +110,7 @@ class SubscriptionController {
     await Notification.create({
       userId: meetup.organizer_id,
       type: 'SUBSCRIPTION.NEW',
-      content: `${user.name} se inscreveu em ${meetup.title}.`,
+      content: `${user.name} subscribed to ${meetup.title}.`,
       metadata: {
         meetupId: meetup.id,
         organizerId: meetup.organizer_id,
@@ -190,7 +190,7 @@ class SubscriptionController {
     await Notification.create({
       userId: meetup.organizer.id,
       type: 'SUBSCRIPTION.CANCELED',
-      content: `${participant.name} cancelou sua inscrição em ${meetup.title}.`,
+      content: `${participant.name} cancelled it's subscription of ${meetup.title}.`,
       metadata: {
         meetupId: meetup.id,
         organizerId: meetup.organizer.id,

@@ -20,6 +20,7 @@ const upload = multer(multerConfig);
 routes.post('/sessions', SessionController.create);
 
 routes.post('/reset_password', ResetPasswordController.create);
+routes.put('/reset_password', ResetPasswordController.update);
 
 routes.post('/users', UserController.create);
 routes.put('/users', authMiddleware, UserController.update);

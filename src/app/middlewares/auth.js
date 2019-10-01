@@ -18,7 +18,10 @@ export default async (req, res, next) => {
     return next();
   } catch (err) {
     return res.status(401).json({
-      error: 'Invalid token',
+      error:
+        err.name === 'TokenExpiredError'
+          ? 'Provided token has expired.'
+          : 'Invalid Token.',
     });
   }
 };
