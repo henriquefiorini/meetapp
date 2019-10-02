@@ -1,9 +1,11 @@
 import * as Yup from 'yup';
-import jwt from 'jsonwebtoken';
-
-import authConfig from '../../config/auth';
+import { randomBytes } from 'crypto';
+import { hash } from 'bcryptjs';
+import { parseISO, addHours } from 'date-fns';
+import { promisify } from 'util';
 
 import User from '../models/User';
+import Token from '../models/Token';
 
 import Queue from '../../lib/Queue';
 
@@ -25,19 +27,24 @@ class ForgotPasswordController {
     // For security reasons, do not return an error
     // if the user doesn't exists.
     const { email } = req.body;
-    const user = await User.findOne({
-      where: { email },
-    });
+    const user = await User.findOne({ where: { email } });
     if (!user) {
       return res.send();
     }
 
     try {
-      // Create Reset Password URL
-      const { id } = user;
-      const token = jwt.sign({ id }, authConfig.secret, {
-        expiresIn: authConfig.expiresIn,
+      // Generate token
+      const randomValue = await promisify(randomBytes)(16);
+      const token = await hash(randomValue.toString('hex'), 8);
+
+      // Save token
+      await Token.create({
+        user_id: user.id,
+        token,
+        expires_in: addHours(new Date(), 1),
       });
+
+      // Create Reset Password URL
       const url = `${process.env.CLIENT_URL}/reset_password/${token}`;
 
       // Send mail with reset link

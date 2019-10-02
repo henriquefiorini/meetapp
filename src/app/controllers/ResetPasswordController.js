@@ -1,9 +1,9 @@
 import * as Yup from 'yup';
 import jwt from 'jsonwebtoken';
-import { promisify } from 'util';
 
 import authConfig from '../../config/auth';
 
+import Token from '../models/Token';
 import User from '../models/User';
 
 class ResetPasswordController {
@@ -13,31 +13,35 @@ class ResetPasswordController {
       password: Yup.string()
         .min(6)
         .required(),
-      confirmPassword: Yup.required().oneOf([Yup.ref('password')]),
+      passwordConfirmation: Yup.string().when('password', (password, field) =>
+        password ? field.required().oneOf([Yup.ref('password')]) : field
+      ),
     });
-
     if (!(await schema.isValid(req.body))) {
       return res.status(400).json({
         error: 'Invalid request.',
       });
     }
 
-    // Get request body attributes
-    const { token, password } = req.body;
-
-    // Decode token
-    const { id } = await promisify(jwt.verify)(token, authConfig.secret);
-
-    // Validate if the user exists
-    const user = await User.findByPk(id);
-    if (!user) {
+    // Find and validate token
+    const token = await Token.findOne({ where: { token: req.body.token } });
+    if (!token || token.is_revoked || token.is_expired || token.is_used) {
       return res.status(400).json({
-        error: 'Record not found.',
+        error: 'Invalid token',
       });
     }
 
+    // Find user
+    const user = await User.findByPk(token.user_id);
+
     // Update password
-    const { name, email } = await user.update({ password });
+    const { id, name, email } = await user.update({
+      password: req.body.password,
+    });
+
+    // Invalidate token after use
+    await token.update({ used_at: new Date() });
+
     return res.json({
       user: {
         id,
