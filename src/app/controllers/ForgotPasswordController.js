@@ -1,7 +1,7 @@
 import * as Yup from 'yup';
 import { randomBytes } from 'crypto';
 import { hash } from 'bcryptjs';
-import { parseISO, addHours } from 'date-fns';
+import { addHours } from 'date-fns';
 import { promisify } from 'util';
 
 import User from '../models/User';
@@ -45,7 +45,7 @@ class ForgotPasswordController {
       });
 
       // Create Reset Password URL
-      const url = `${process.env.CLIENT_URL}/reset_password/${token}`;
+      const url = `${process.env.CLIENT_URL}/reset/${token}`;
 
       // Send mail with reset link
       await Queue.add(ForgotPasswordMail.key, { user, url });
