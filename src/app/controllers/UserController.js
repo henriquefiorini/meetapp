@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import authConfig from '../../config/auth';
 
 import User from '../models/User';
+import File from '../models/File';
 
 class UserController {
   async create(req, res) {
@@ -88,11 +89,23 @@ class UserController {
       });
     }
 
-    const { id, name } = await user.update(req.body);
+    await user.update(req.body);
+
+    const { id, name, avatar } = await User.findByPk(req.currentUserId, {
+      include: [
+        {
+          model: File,
+          as: 'avatar',
+          attributes: ['id', 'path', 'url'],
+        },
+      ],
+    });
+
     return res.json({
       id,
       name,
       email: email || user.email,
+      avatar,
     });
   }
 }

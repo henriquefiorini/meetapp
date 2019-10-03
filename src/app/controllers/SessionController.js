@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import authConfig from '../../config/auth';
 
 import User from '../models/User';
+import File from '../models/File';
 
 class SessionController {
   async create(req, res) {
@@ -22,6 +23,13 @@ class SessionController {
     const { email, password } = req.body;
     const user = await User.findOne({
       where: { email },
+      include: [
+        {
+          model: File,
+          as: 'avatar',
+          attributes: ['id', 'path', 'url'],
+        },
+      ],
     });
     if (!user) {
       return res.status(401).json({
@@ -34,12 +42,13 @@ class SessionController {
       });
     }
 
-    const { id, name } = user;
+    const { id, name, avatar } = user;
     return res.json({
       user: {
         id,
         name,
         email,
+        avatar,
       },
       token: jwt.sign({ id }, authConfig.secret, {
         expiresIn: authConfig.expiresIn,

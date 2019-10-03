@@ -22,7 +22,7 @@ module.exports = {
         allowNull: false,
         unique: true,
       },
-      expires_in: Sequelize.DATE,
+      expires_at: Sequelize.DATE,
       used_at: Sequelize.DATE,
       revoked_at: Sequelize.DATE,
       created_at: {

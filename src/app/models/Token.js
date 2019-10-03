@@ -6,12 +6,12 @@ class Token extends Model {
     super.init(
       {
         token: Sequelize.STRING,
-        expires_in: Sequelize.DATE,
+        expires_at: Sequelize.DATE,
         used_at: Sequelize.DATE,
         is_expired: {
           type: Sequelize.VIRTUAL,
           get() {
-            return isBefore(this.expires_in, new Date());
+            return isBefore(this.expires_at, new Date());
           },
         },
         is_used: {

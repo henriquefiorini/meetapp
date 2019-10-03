@@ -5,6 +5,7 @@ import authConfig from '../../config/auth';
 
 import Token from '../models/Token';
 import User from '../models/User';
+import File from '../models/File';
 
 class ResetPasswordController {
   async create(req, res) {
@@ -32,10 +33,18 @@ class ResetPasswordController {
     }
 
     // Find user
-    const user = await User.findByPk(token.user_id);
+    const user = await User.findByPk(token.user_id, {
+      include: [
+        {
+          model: File,
+          as: 'avatar',
+          attributes: ['id', 'path', 'url'],
+        },
+      ],
+    });
 
     // Update password
-    const { id, name, email } = await user.update({
+    const { id, name, email, avatar } = await user.update({
       password: req.body.password,
     });
 
@@ -47,6 +56,7 @@ class ResetPasswordController {
         id,
         name,
         email,
+        avatar,
       },
       token: jwt.sign({ id }, authConfig.secret, {
         expiresIn: authConfig.expiresIn,
