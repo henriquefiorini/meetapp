@@ -26,12 +26,18 @@ routes.post('/reset_password', ResetPasswordController.create);
 routes.post('/users', UserController.create);
 routes.put('/users', authMiddleware, UserController.update);
 
+// routes.get('/meetups/:id', authMiddleware, MeetupController.retrieve);
 routes.get('/meetups', authMiddleware, MeetupController.list);
 routes.post('/meetups', authMiddleware, MeetupController.create);
 routes.put('/meetups/:id', authMiddleware, MeetupController.update);
 routes.delete('/meetups/:id', authMiddleware, MeetupController.delete);
 
 routes.get('/meetups/organizing', authMiddleware, OrganizerController.list);
+routes.get(
+  '/meetups/organizing/:id',
+  authMiddleware,
+  OrganizerController.retrieve
+);
 
 routes.get('/subscriptions', authMiddleware, SubscriptionController.list);
 routes.post(

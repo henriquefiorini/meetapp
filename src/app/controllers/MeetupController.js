@@ -12,6 +12,27 @@ import Meetup from '../models/Meetup';
 import User from '../models/User';
 
 class MeetupController {
+  async retrieve(req, res) {
+    // Validate request query
+    const schema = Yup.object().shape({
+      id: Yup.number().required(),
+    });
+    if (!(await schema.isValid(req.params))) {
+      return res.status(400).json({
+        error: 'Invalid request.',
+      });
+    }
+
+    // Retrieve meetup
+    const meetup = await Meetup.findByPk(req.params.id);
+    if (!meetup) {
+      return res.status(400).json({
+        error: 'Record not found.',
+      });
+    }
+    return res.json(meetup);
+  }
+
   async list(req, res) {
     // Validate request query
     const schema = Yup.object().shape({
@@ -81,16 +102,21 @@ class MeetupController {
     }
 
     // Create meetup
-    const meetup = await Meetup.create({
-      organizer_id: req.currentUserId,
-      banner_id,
-      title,
-      description,
-      location,
-      date,
-    });
-
-    return res.json(meetup);
+    try {
+      const meetup = await Meetup.create({
+        organizer_id: req.currentUserId,
+        banner_id,
+        title,
+        description,
+        location,
+        date,
+      });
+      return res.json(meetup);
+    } catch (err) {
+      return res.status(500).json({
+        error: 'Internal server error.',
+      });
+    }
   }
 
   async update(req, res) {
