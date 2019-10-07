@@ -1,6 +1,8 @@
 import * as Yup from 'yup';
 
 import Meetup from '../models/Meetup';
+import User from '../models/User';
+import File from '../models/File';
 
 class OrganizerController {
   async retrieve(req, res) {
@@ -19,6 +21,18 @@ class OrganizerController {
       where: {
         organizer_id: req.currentUserId,
       },
+      include: [
+        {
+          model: User,
+          as: 'organizer',
+          attributes: ['id', 'name'],
+        },
+        {
+          model: File,
+          as: 'banner',
+          attributes: ['id', 'path', 'url'],
+        },
+      ],
     });
     if (!meetup) {
       return res.status(400).json({
@@ -33,6 +47,18 @@ class OrganizerController {
       where: {
         organizer_id: req.currentUserId,
       },
+      include: [
+        {
+          model: User,
+          as: 'organizer',
+          attributes: ['id', 'name'],
+        },
+        {
+          model: File,
+          as: 'banner',
+          attributes: ['id', 'path', 'url'],
+        },
+      ],
     });
     return res.json(meetups);
   }

@@ -10,6 +10,7 @@ import {
 
 import Meetup from '../models/Meetup';
 import User from '../models/User';
+import File from '../models/File';
 
 class MeetupController {
   async retrieve(req, res) {
@@ -24,7 +25,20 @@ class MeetupController {
     }
 
     // Retrieve meetup
-    const meetup = await Meetup.findByPk(req.params.id);
+    const meetup = await Meetup.findByPk(req.params.id, {
+      include: [
+        {
+          model: User,
+          as: 'organizer',
+          attributes: ['id', 'name'],
+        },
+        {
+          model: File,
+          as: 'banner',
+          attributes: ['id', 'path', 'url'],
+        },
+      ],
+    });
     if (!meetup) {
       return res.status(400).json({
         error: 'Record not found.',
@@ -66,8 +80,12 @@ class MeetupController {
         {
           model: User,
           as: 'organizer',
-          attributes: ['name'],
-          required: true,
+          attributes: ['id', 'name'],
+        },
+        {
+          model: File,
+          as: 'banner',
+          attributes: ['id', 'path', 'url'],
         },
       ],
     });
@@ -135,7 +153,20 @@ class MeetupController {
     }
 
     // Retrieve requested meetup
-    const meetup = await Meetup.findByPk(req.params.id);
+    const meetup = await Meetup.findByPk(req.params.id, {
+      include: [
+        {
+          model: User,
+          as: 'organizer',
+          attributes: ['id', 'name'],
+        },
+        {
+          model: File,
+          as: 'banner',
+          attributes: ['id', 'path', 'url'],
+        },
+      ],
+    });
 
     // Validate if the meetup exists
     if (!meetup) {
