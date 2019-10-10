@@ -47,6 +47,7 @@ class OrganizerController {
       where: {
         organizer_id: req.currentUserId,
       },
+      order: ['date'],
       include: [
         {
           model: User,
