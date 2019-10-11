@@ -25,10 +25,6 @@ const notificationSchema = new Schema(
       type: Date,
       default: null,
     },
-    clickedAt: {
-      type: Date,
-      default: null,
-    },
   },
   {
     timestamps: true,
