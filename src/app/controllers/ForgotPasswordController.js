@@ -35,12 +35,13 @@ class ForgotPasswordController {
     try {
       // Generate token
       const randomValue = await promisify(randomBytes)(16);
-      const token = await hash(randomValue.toString('hex'), 8);
+      const hashedValue = await hash(randomValue.toString('hex'), 8);
+      const token = hashedValue.replace('/', '');
 
       // Save token
       await Token.create({
         user_id: user.id,
-        token: token.replace('/', ''),
+        token: token,
         expires_in: addHours(new Date(), 1),
       });
 
