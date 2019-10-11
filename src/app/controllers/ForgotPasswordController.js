@@ -40,7 +40,7 @@ class ForgotPasswordController {
       // Save token
       await Token.create({
         user_id: user.id,
-        token,
+        token: token.replace('/', ''),
         expires_in: addHours(new Date(), 1),
       });
 
